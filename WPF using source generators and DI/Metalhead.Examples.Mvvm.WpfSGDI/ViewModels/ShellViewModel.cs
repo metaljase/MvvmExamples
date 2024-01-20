@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows.Controls;
 
@@ -7,16 +8,19 @@ using Metalhead.Examples.Mvvm.WpfSGDI.Views;
 
 namespace Metalhead.Examples.Mvvm.WpfSGDI.ViewModels;
 
-public partial class ShellViewModel : ObservableObject
+public partial class ShellViewModel(ILogger logger) : ObservableObject
 {
     [ObservableProperty]
-    private UserControl? _currentView;
-    private readonly ILogger _logger;
+    private UserControl? _currentView = null;
+    private readonly ILogger _logger = logger;
 
-    public ShellViewModel(ILogger logger)
+    partial void OnCurrentViewChanged(UserControl? value)
     {
-        _logger = logger;
-        _currentView = null;
+        // Tell registered recipients the view has changed.
+        if (value is not null)
+        {
+            WeakReferenceMessenger.Default.Send(new ChangedViewMessage(value));
+        }        
     }
 
     [RelayCommand]

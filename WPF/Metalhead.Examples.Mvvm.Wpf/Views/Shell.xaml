@@ -6,14 +6,15 @@
         xmlns:vm="clr-namespace:Metalhead.Examples.Mvvm.Wpf.ViewModels"
         mc:Ignorable="d"
         SizeToContent="Height"
-        Title="CommunityToolkit MVVM WPF Example"  Width="400">
+        Title="CommunityToolkit MVVM WPF Example"  Width="400"
+        ResizeMode="NoResize">
     <Window.DataContext>
         <vm:ShellViewModel/>
     </Window.DataContext>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         
         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center">

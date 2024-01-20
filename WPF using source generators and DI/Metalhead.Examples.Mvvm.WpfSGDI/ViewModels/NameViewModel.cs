@@ -3,9 +3,9 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace Metalhead.Examples.Mvvm.WpfSGDI.ViewModels;
 
-public partial class NameViewModel : ObservableObject
+public partial class NameViewModel(ILogger logger) : ObservableObject
 {
-    private readonly ILogger _logger;
+    private readonly ILogger _logger = logger;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(FullName))]
@@ -14,11 +14,6 @@ public partial class NameViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(FullName))]
     private string _lastName = "";
-
-    public NameViewModel(ILogger logger)
-    {
-        _logger = logger;
-    }
 
     public string FullName => $"{FirstName} {LastName}";
 
