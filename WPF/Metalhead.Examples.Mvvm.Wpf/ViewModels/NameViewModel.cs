@@ -37,7 +37,7 @@ public partial class NameViewModel : ObservableObject
         }
     }
 
-    public string FullName => $"{FirstName} {LastName}";
+    public string FullName => $"{FirstName} {LastName}".Trim();
 
     private void Submit()
     {

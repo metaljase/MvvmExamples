@@ -15,7 +15,7 @@ public partial class NameViewModel(ILogger logger) : ObservableObject
     [NotifyPropertyChangedFor(nameof(FullName))]
     private string _lastName = "";
 
-    public string FullName => $"{FirstName} {LastName}";
+    public string FullName => $"{FirstName} {LastName}".Trim();
 
     [RelayCommand]
     void Reset()
