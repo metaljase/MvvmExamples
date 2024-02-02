@@ -1,19 +1,22 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using System;
 using System.ComponentModel.DataAnnotations;
+
+using Metalhead.Examples.Mvvm.Wpf.Helpers;
 
 namespace Metalhead.Examples.Mvvm.Wpf.ViewModels;
 
 public partial class TemperatureConversionViewModel : ObservableValidator
 {
-    private string _temperature = string.Empty;
+    private string _celsius = string.Empty;
+    private string _fahrenheit = string.Empty;
 
     public TemperatureConversionViewModel()
     {
-        Conversion = string.Empty;
-        ToCelsiusCommand = new RelayCommand(ToCelsius);
-        ToFahrenheitCommand = new RelayCommand(ToFahrenheit);
+        ToCelsiusCommand = new RelayCommand(ToCelsius, () => FahrenheitHasNoErrors);
+        ToFahrenheitCommand = new RelayCommand(ToFahrenheit, () => CelsiusHasNoErrors);
 
         // Register to recieve a message when the view has been (re)displayed.
         WeakReferenceMessenger.Default.Register<ChangedViewMessage>(this, (r, m) =>
@@ -32,55 +35,66 @@ public partial class TemperatureConversionViewModel : ObservableValidator
     public RelayCommand ToCelsiusCommand { get; }
     public RelayCommand ToFahrenheitCommand { get; }
 
-    [Required(ErrorMessage = "Temperature is required.")]
-    [RegularExpression("^-?[0-9]*$", ErrorMessage = "Only numeric values are allowed.")]
-    public string Temperature
+    [Range(-273.15, int.MaxValue, ErrorMessage = "Only values between {1} and {2} are allowed.")]
+    public string Celsius
     {
-        get => _temperature;
+        get => _celsius;
         set
         {
-            if (SetProperty(ref _temperature, value, validate: true))
+            if (SetProperty(ref _celsius, value, validate: true))
             {
-                OnPropertyChanged(nameof(Conversion));
-                OnPropertyChanged(nameof(HasNoErrors));
+                OnPropertyChanged(nameof(Celsius));
+                OnPropertyChanged(nameof(CelsiusHasNoErrors));
             }
         }
     }
 
-    public string Conversion { get; private set; }
-    public bool HasNoErrors => !HasErrors;
+    [Range(-459.67, int.MaxValue, ErrorMessage = "Only values between {1} and {2} are allowed.")]
+    public string Fahrenheit
+    {
+        get => _fahrenheit;
+        set
+        {
+            if (SetProperty(ref _fahrenheit, value, validate: true))
+            {
+                OnPropertyChanged(nameof(Fahrenheit));
+                OnPropertyChanged(nameof(FahrenheitHasNoErrors));
+            }
+        }
+    }
+
+    public bool CelsiusHasNoErrors => ValidationHelper.IsPropertyValid(this, nameof(Celsius));
+    public bool FahrenheitHasNoErrors => ValidationHelper.IsPropertyValid(this, nameof(Fahrenheit));
 
     private void ToCelsius()
     {
-        // As a precaution, perform final check for any validation errors before conversion.
-        ValidateAllProperties();
-
-        if (!HasErrors && int.TryParse(Temperature, out int temperature))
+        try
         {
-            Conversion = $"{Temperature} Fahrenheit = {(temperature - 32) * 5 / 9} Celsius";
+            Celsius = TemperatureHelper.FahrenheitToCelsius(Fahrenheit).ToString();
         }
-        else
+        catch (FormatException)
         {
-            Conversion = string.Empty;
+            Celsius = string.Empty;
         }
-
-        OnPropertyChanged(nameof(Conversion));
+        finally
+        {
+            OnPropertyChanged(nameof(Celsius));
+        }
     }
 
-    void ToFahrenheit()
+    private void ToFahrenheit()
     {
-        // As a precaution, perform final check for any validation errors before conversion.
-        ValidateAllProperties();
-
-        if (!HasErrors && int.TryParse(Temperature, out int temperature))
+        try
         {
-            Conversion = $"{Temperature} Celsius = {temperature * 9 / 5 + 32} Fahrenheit";
+            Fahrenheit = TemperatureHelper.CelsiusToFahrenheit(Celsius).ToString();
         }
-        else
+        catch (FormatException)
         {
-            Conversion = string.Empty;
+            Fahrenheit = string.Empty;
         }
-
-        OnPropertyChanged(nameof(Conversion));
+        finally
+        {
+            OnPropertyChanged(nameof(Fahrenheit));
+        }
     }
 }

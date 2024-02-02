@@ -1,7 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using System;
 using System.ComponentModel.DataAnnotations;
+
+using Metalhead.Examples.Mvvm.WpfSG.Helpers;
 
 namespace Metalhead.Examples.Mvvm.WpfSG.ViewModels;
 
@@ -9,16 +12,18 @@ public partial class TemperatureConversionViewModel : ObservableValidator
 {
     [ObservableProperty]
     [NotifyDataErrorInfo]
-    [Required(ErrorMessage = "Temperature is required.")]
-    [RegularExpression("^-?[0-9]*$", ErrorMessage = "Only numeric values are allowed.")]
-    [NotifyPropertyChangedFor(nameof(Conversion))]
-    [NotifyPropertyChangedFor(nameof(HasNoErrors))]
-    private string _temperature = string.Empty;
+    [Range(-273.15, int.MaxValue, ErrorMessage = "Only values between {1} and {2} are allowed.")]
+    [NotifyPropertyChangedFor(nameof(CelsiusHasNoErrors))]
+    private string _celsius = string.Empty;
+
+    [ObservableProperty]
+    [NotifyDataErrorInfo]
+    [Range(-459.67, int.MaxValue, ErrorMessage = "Only values between {1} and {2} are allowed.")]
+    [NotifyPropertyChangedFor(nameof(FahrenheitHasNoErrors))]
+    private string _fahrenheit = string.Empty;
 
     public TemperatureConversionViewModel()
     {
-        Conversion = string.Empty;
-
         // Register to recieve a message when the view has been (re)displayed.
         WeakReferenceMessenger.Default.Register<ChangedViewMessage>(this, (r, m) =>
         {
@@ -33,42 +38,40 @@ public partial class TemperatureConversionViewModel : ObservableValidator
         });
     }
 
-    public string Conversion { get; private set; }
-    public bool HasNoErrors => !HasErrors;
+    public bool CelsiusHasNoErrors => ValidationHelper.IsPropertyValid(this, nameof(Celsius));
+    public bool FahrenheitHasNoErrors => ValidationHelper.IsPropertyValid(this, nameof(Fahrenheit));
 
-    [RelayCommand]
-    void ToCelsius()
+    [RelayCommand(CanExecute = nameof(FahrenheitHasNoErrors))]
+    private void ToCelsius()
     {
-        // As a precaution, perform final check for any validation errors before conversion.
-        ValidateAllProperties();
-
-        if (!HasErrors && int.TryParse(Temperature, out int temperature))
+        try
         {
-            Conversion = $"{Temperature} Fahrenheit = {(temperature - 32) * 5 / 9} Celsius";
+            Celsius = TemperatureHelper.FahrenheitToCelsius(Fahrenheit).ToString();
         }
-        else
+        catch (FormatException)
         {
-            Conversion = string.Empty;
+            Celsius = string.Empty;
         }
-
-        OnPropertyChanged(nameof(Conversion));
+        finally
+        {
+            OnPropertyChanged(nameof(Celsius));
+        }
     }
 
-    [RelayCommand]
-    void ToFahrenheit()
+    [RelayCommand(CanExecute = nameof(CelsiusHasNoErrors))]
+    private void ToFahrenheit()
     {
-        // As a precaution, perform final check for any validation errors before conversion.
-        ValidateAllProperties();
-
-        if (!HasErrors && int.TryParse(Temperature, out int temperature))
+        try
         {
-            Conversion = $"{Temperature} Celsius = {temperature * 9 / 5 + 32} Fahrenheit";
+            Fahrenheit = TemperatureHelper.CelsiusToFahrenheit(Celsius).ToString();
         }
-        else
+        catch (FormatException)
         {
-            Conversion = string.Empty;
+            Fahrenheit = string.Empty;
         }
-
-        OnPropertyChanged(nameof(Conversion));
+        finally
+        {
+            OnPropertyChanged(nameof(Fahrenheit));
+        }
     }
 }

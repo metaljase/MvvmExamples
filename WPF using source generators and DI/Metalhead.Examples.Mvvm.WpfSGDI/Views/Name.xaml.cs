@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 
 using Metalhead.Examples.Mvvm.WpfSGDI.ViewModels;
 
@@ -7,9 +6,9 @@ namespace Metalhead.Examples.Mvvm.WpfSGDI.Views;
 
 public partial class Name : UserControl
 {
-    public Name()
+    public Name(NameViewModel viewModel)
     {
         InitializeComponent();
-        DataContext = App.Current.Host.Services.GetService<NameViewModel>();
+        DataContext = viewModel;
     }
 }

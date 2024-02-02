@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:Metalhead.Examples.Mvvm.WpfSG.ViewModels"
              mc:Ignorable="d" 
-             Padding="10"
+             Padding="20 10 20 20"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.DataContext>
         <vm:TemperatureConversionViewModel/>
@@ -41,19 +41,21 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Row="0" HorizontalAlignment="Stretch">
-            <TextBlock Text="Temperature"/>
-            <TextBox Text="{Binding Temperature, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True, NotifyOnValidationError=True, ValidatesOnNotifyDataErrors=True, ValidatesOnExceptions=True}"
-                     HorizontalAlignment="Stretch" Margin="0 0 0 10" Style="{StaticResource TextBoxErrorStyle}"/>
-            
-            <TextBlock Text="Conversion"/>
-            <TextBox Text="{Binding Conversion, Mode=OneWay}" IsReadOnly="True" HorizontalAlignment="Stretch" Margin="0 0 0 10"/>
-        </StackPanel>
-        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button Content="To Fahrenheit" Padding="10 5 10 5" Margin="0 0 5 0" Command="{Binding ToFahrenheitCommand}" IsEnabled="{Binding HasNoErrors}"/>
-            <Button Content="To Celsius" Padding="10 5 10 5" Margin="5 0 0 0" Command="{Binding ToCelsiusCommand}" IsEnabled="{Binding HasNoErrors}"/>
-        </StackPanel>
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Celsius" Margin="0 0 0 0"/>
+        <TextBox Grid.Row="1" Grid.Column="0" Text="{Binding Celsius, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True, NotifyOnValidationError=True, ValidatesOnNotifyDataErrors=True, ValidatesOnExceptions=True}" 
+             HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0 0 5 0" Style="{StaticResource TextBoxErrorStyle}"/>
+        <Button Grid.Row="1" Grid.Column="1" Content="To Fahrenheit" HorizontalAlignment="Stretch" Padding="10 4 10 4" Margin="5 0 0 0" Command="{Binding ToFahrenheitCommand}"  IsEnabled="{Binding CelsiusHasNoErrors}"/>
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Fahrenheit" Margin="0 10 0 0"/>
+        <TextBox Grid.Row="3" Grid.Column="0" Text="{Binding Fahrenheit, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True, NotifyOnValidationError=True, ValidatesOnNotifyDataErrors=True, ValidatesOnExceptions=True}" 
+                 HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Margin="0 0 5 0" Style="{StaticResource TextBoxErrorStyle}"/>
+        <Button Grid.Row="3" Grid.Column="1" Content="To Celsius" HorizontalAlignment="Stretch" Padding="10 4 10 4" Margin="5 0 0 0" Command="{Binding ToCelsiusCommand}" IsEnabled="{Binding FahrenheitHasNoErrors}"/>
     </Grid>
 </UserControl>
