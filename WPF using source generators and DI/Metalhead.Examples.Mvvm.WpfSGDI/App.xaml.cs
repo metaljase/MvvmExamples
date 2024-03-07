@@ -1,8 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
-using System.IO;
 using System.Windows;
 
 using Metalhead.Examples.Mvvm.WpfSGDI.ViewModels;
@@ -15,55 +13,41 @@ namespace Metalhead.Examples.Mvvm.WpfSGDI
     /// </summary>
     public partial class App : Application
     {
-        public IHost Host { get; }
+        public IHost Host { get; private set; }
 
         public App()
         {
-            Host = Microsoft.Extensions.Hosting.Host
-                .CreateDefaultBuilder()
-                .ConfigureAppConfiguration(hostConfig =>
-                {
-                    hostConfig.SetBasePath(Directory.GetCurrentDirectory());
-                })
-                .ConfigureAppConfiguration((hostingContext, hostConfig) =>
-                {
-                    hostConfig.AddConfiguration(GetConfiguration(hostConfig));
-                })
-                .ConfigureServices((hostContext, services) =>
-                {
-                    services.AddSingleton<ILogger, DebugLogger>();
-                    services.AddSingleton<Shell>();
-                    services.AddSingleton<TemperatureConversion>();
-                    services.AddSingleton<Name>();
-                    services.AddSingleton<ShellViewModel>();
-                    services.AddSingleton<TemperatureConversionViewModel>();
-                    services.AddSingleton<NameViewModel>();
-                })
-                .Build();
+            var builder = Microsoft.Extensions.Hosting.Host.CreateApplicationBuilder();
+
+            builder.Services.AddSingleton<ILogger, DebugLogger>();
+            builder.Services.AddSingleton<Shell>();
+            builder.Services.AddSingleton<TemperatureConversion>();
+            builder.Services.AddSingleton<Name>();
+            builder.Services.AddSingleton<ShellViewModel>();
+            builder.Services.AddSingleton<TemperatureConversionViewModel>();
+            builder.Services.AddSingleton<NameViewModel>();
+
+            Host = builder.Build();
         }
 
         public new static App Current => (App)Application.Current;
 
-        private static IConfigurationRoot GetConfiguration(IConfigurationBuilder builder)
-        {
-            builder.SetBasePath(Directory.GetCurrentDirectory());
-
-            return builder.Build();
-        }
-
         protected override async void OnStartup(StartupEventArgs e)
         {
-            await Host!.StartAsync();
+            await Host.StartAsync();
+
+            using var serviceScope = Host.Services.CreateScope();
+            var serviceProvider = serviceScope.ServiceProvider;
 
             try
             {
-                Host.Services.GetRequiredService<Shell>().Show();
+                serviceProvider.GetRequiredService<Shell>().Show();
 
                 base.OnStartup(e);
             }
             catch (Exception)
             {
-                ILogger logger = Host.Services.GetRequiredService<ILogger>();
+                ILogger logger = serviceProvider.GetRequiredService<ILogger>();
                 logger.Log("Application exited unexpectedly.");
                 Environment.Exit(0);
             }
@@ -71,7 +55,7 @@ namespace Metalhead.Examples.Mvvm.WpfSGDI
 
         protected override async void OnExit(ExitEventArgs e)
         {
-            await Host!.StopAsync();
+            await Host.StopAsync();
             base.OnExit(e);
         }
     }
