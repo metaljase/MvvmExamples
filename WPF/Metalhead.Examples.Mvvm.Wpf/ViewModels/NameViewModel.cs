@@ -31,8 +31,8 @@ public partial class NameViewModel : ObservableObject
         get => _firstName;
         set
         {
-            SetProperty(ref _firstName, value);
-            OnPropertyChanged(nameof(FullName));
+            if (SetProperty(ref _firstName, value))
+                OnPropertyChanged(nameof(FullName));
         }
     }
 
@@ -41,8 +41,8 @@ public partial class NameViewModel : ObservableObject
         get => _lastName;
         set
         {
-            SetProperty(ref _lastName, value);
-            OnPropertyChanged(nameof(FullName));
+            if (SetProperty(ref _lastName, value))
+                OnPropertyChanged(nameof(FullName));
         }
     }
 
@@ -53,6 +53,8 @@ public partial class NameViewModel : ObservableObject
         get => _isBusy;
         set
         {
+            if (_isBusy == value)
+                return;
             _isBusy = value;
             OnPropertyChanged(nameof(IsBusy));
         }
