@@ -24,6 +24,8 @@ public partial class NameViewModel : ObservableObject
         get => _isBusy;
         set
         {
+            if (_isBusy == value)
+                return;
             _isBusy = value;
             OnPropertyChanged(nameof(IsBusy));
         }
