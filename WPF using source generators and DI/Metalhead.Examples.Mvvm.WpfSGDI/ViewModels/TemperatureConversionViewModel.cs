@@ -28,7 +28,7 @@ public partial class TemperatureConversionViewModel : ObservableValidator
     {
         _logger = logger;
 
-        // Register to recieve a message when the view has been (re)displayed.
+        // Register to receive a message when the view has been (re)displayed.
         WeakReferenceMessenger.Default.Register<ChangedViewMessage>(this, (r, m) =>
         {
             // Switching between views can cause the view's visual tree to detach.  This can result in views not

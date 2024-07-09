@@ -25,6 +25,8 @@ public partial class NameViewModel(ILogger logger) : ObservableObject
         get => _isBusy;
         set
         {
+            if (_isBusy == value)
+                return;
             _isBusy = value;
             OnPropertyChanged(nameof(IsBusy));
         }
